@@ -2,12 +2,14 @@ import {
   IconDropdownOrange,
   IconErrorRed,
   IconSuccessGreen,
+  IconWarning,
 } from '../../components/icons';
 
 export interface NotificationResponse {
   alert: Response;
   alert2: Response;
   alert3: Response;
+  warning: Response;
   success: Response;
   errorLong: Response;
 }
@@ -74,5 +76,11 @@ export const responseData: NotificationResponse = {
         'Follow these recommendations to improve your instructions and get better outcome:',
       list: ['Choose one topic', 'Add desired paper structure'],
     },
+  },
+  warning: {
+    icon: <IconWarning />,
+    title: 'Weak instructions:',
+    desciption:
+      'To generate high-quality text, we recommend adding more details about your paper.',
   },
 };

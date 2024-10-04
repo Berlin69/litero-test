@@ -16,7 +16,7 @@ export const Select = <T extends SelectProps>({
   return (
     <div
       className={twMerge(
-        'bg-plt-secondary py-2 px-4 rounded-full flex justify-between',
+        'bg-plt-secondary py-2 px-4 rounded-full flex gap justify-between cursor-pointer',
         className
       )}
     >

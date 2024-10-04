@@ -9,31 +9,36 @@ import { ResponseLoading } from '../response-loading';
 import { Counter } from '../counter/counter';
 import { MainSelects } from '../main-selects';
 import { ErrorShort } from '../error-short';
+import { twMerge } from 'tailwind-merge';
 
 export const Writer = () => {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setLoading] = useState(false);
   const [notification, setNotification] = useState<
-    'none' | 'alert' | 'success' | 'error' | 'alert2' | 'alert3' | 'errorLong'
+    | 'none'
+    | 'alert'
+    | 'success'
+    | 'error'
+    | 'alert2'
+    | 'alert3'
+    | 'errorLong'
+    | 'warning'
   >('none');
 
   const debouncedPrompt = useDebounce(prompt, 500);
 
+  // если промпт пустой - убираем уведомление
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
     if (prompt.length === 0) {
       setNotification('none');
+      setLoading(false);
     }
-    if (prompt.length > 0 && prompt.length <= 10)
-      timeoutId = setTimeout(() => {
-        setNotification('error');
-      }, 1000);
-
-    return () => clearTimeout(timeoutId);
   }, [prompt]);
 
+  // если промпт больше 10 символов - показываем уведомление + локика простановки вида уведомления
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
+    setNotification('none');
     if (prompt.length > 10) {
       setNotification('none');
       setLoading(true);
@@ -43,24 +48,36 @@ export const Writer = () => {
         } else {
           setNotification(getResponse());
         }
-        console.log(getResponse());
         setLoading(false);
       }, 1500);
-    } else {
-      setLoading(false);
+    } else if (debouncedPrompt.length > 0 && debouncedPrompt.length <= 10) {
+      setLoading(true);
+      timeoutId = setTimeout(() => {
+        setNotification('warning');
+        setLoading(false);
+      }, 1000);
     }
     return () => clearTimeout(timeoutId);
   }, [debouncedPrompt]);
 
   return (
     <div className="mt-8 px-[110px]">
-      <div className="relative border border-plt-gray px-4 pt-3 pb-2 rounded-xl h-[280px]">
+      <div
+        className={twMerge(
+          'relative border border-plt-gray px-4 pt-3 pb-2 rounded-xl h-[280px] overflow-hidden transition-all',
+          (notification === 'error' || notification === 'errorLong') &&
+            'border-plt-alert'
+        )}
+      >
         <MainTextarea prompt={prompt} setPrompt={setPrompt} />
-        <div className="absolute bottom-2 right-4 left-4 w-auto grid grid-cols-[1fr_100px] items-center h-4">
+        <div className="group/notification absolute bottom-2 right-4 left-4 w-auto grid grid-cols-[1fr_100px] items-center h-4 cursor-default">
           <div className="flex items-center gap-1">
             {isLoading && <ResponseLoading />}
-            {notification === 'error' && <ErrorShort />}
-            {notification === 'none' || notification === 'error' ? null : (
+            {notification === 'warning' && <ErrorShort />}
+            {notification === 'none' ||
+            notification === 'error' ||
+            notification === 'errorLong' ||
+            notification === 'warning' ? null : (
               <Notification notification={notification} />
             )}
           </div>
